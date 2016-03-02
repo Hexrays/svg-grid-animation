@@ -1,5 +1,6 @@
 import Snap from 'snapsvg';
 import {clone} from 'lodash';
+import {createRandomRGB} from './helpers';
 
 function createGrid(totalWidth, totalHeight, gridFactorWidth, gridFactorHeight) {
   let width = totalWidth/gridFactorWidth;
@@ -94,7 +95,7 @@ export const App = {
       let line = svg.polyline([].concat.apply([], horizontals[i]));
       line.attr({
         id: `horizontal${i}`,
-        stroke: 'rgba(0,0,0,0.5)',
+        stroke: createRandomRGB(0.75),
         strokeWidth: '1',
         fill: 'transparent'
       });
@@ -105,7 +106,7 @@ export const App = {
       let line = svg.polyline([].concat.apply([], verticals[i]));
       line.attr({
         id: `vertical${i}`,
-        stroke: 'rgba(0,0,0,0.5)',
+        stroke: createRandomRGB(0.75),
         strokeWidth: '1',
         fill: 'transparent'
       });
@@ -140,7 +141,7 @@ export const App = {
     this.horizontals = horizontals;
     this.verticals = verticals;
     this.prevX = 0;
-    this.animationAmount = 30;
+    this.animationAmount = 15;
 
     this.lines = this.drawLines(this.s, this.horizontals, this.verticals);
 
