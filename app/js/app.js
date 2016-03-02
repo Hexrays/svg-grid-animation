@@ -1,27 +1,6 @@
 import Snap from 'snapsvg';
-import {clone} from 'lodash';
+import {clone, map} from 'lodash';
 import {createRandomRGB} from './helpers';
-
-function createGrid(totalWidth, totalHeight, gridFactorWidth, gridFactorHeight) {
-  let width = totalWidth/gridFactorWidth;
-  let height = totalHeight/gridFactorHeight;
-  let total = gridFactorHeight * gridFactorWidth;
-  let shapes = [];
-
-  for (let i = 0; i < total; i++) {
-    if(i % gridFactorWidth !== 0) {
-      let topleft     = [i*width, i*height];
-    } else {
-
-    }
-    let topRight    = [topleft[0] + width, topleft[1]];
-    let bottomLeft  = [topleft[0], topleft[1] + height];
-    let bottomRight = [topleft[0] + width, topleft[1] + height];
-    shapes.push([topleft, topRight, bottomRight, bottomLeft])
-  }
-
-  return shapes;
-}
 
 Snap.plugin( function( Snap, Element, Paper, global ) {
   Element.prototype.polyAnimate = function( destPoints, duration, easing, callback ) {
@@ -61,24 +40,20 @@ export const App = {
   },
 
   updateValues(horizontals, verticals) {
-    let newHoriz = clone(horizontals);
-    let newVert = clone(verticals);
+    let newHoriz = map(horizontals, clone);
+    let newVert  = map(verticals, clone);
 
-    for (let i = 1; i < (horizontals.length -1); i++) {
-      let horizontal = horizontals[i];
-      for (var j = 1; j < (horizontal.length -1); j++) {
-        let factor = Math.random() < 0.5 ? -this.animationAmount : this.animationAmount;
-        let randX = Math.floor(Math.random() * factor);
-        let randY = Math.floor(Math.random() * factor);
-
+    for (let i = 1; i < (newHoriz.length -1); i++) {
+      let horizontal = newHoriz[i];
+      for (let j = 1; j < (horizontal.length -1); j++) {
+        let factor = Math.floor(Math.random() < 0.5 ? -this.animationAmount : this.animationAmount);
+        let randX  = Math.floor(Math.random() * factor);
+        let randY  = Math.floor(Math.random() * factor);
         let x = horizontal[j][0] + randX;
-
         let y = horizontal[j][1] + randY;
-        if(i === 6 && j === 6) {
 
-        }
         newHoriz[i][j] = [x, y];
-        newVert[j][i] = [x,y]
+        newVert[j][i] = [x,y];
       }
     }
     return {
@@ -95,7 +70,7 @@ export const App = {
       let line = svg.polyline([].concat.apply([], horizontals[i]));
       line.attr({
         id: `horizontal${i}`,
-        stroke: createRandomRGB(0.75),
+        stroke: createRandomRGB(Math.random()/2),
         strokeWidth: '1',
         fill: 'transparent'
       });
@@ -106,7 +81,7 @@ export const App = {
       let line = svg.polyline([].concat.apply([], verticals[i]));
       line.attr({
         id: `vertical${i}`,
-        stroke: createRandomRGB(0.75),
+        stroke: createRandomRGB(Math.random()/2),
         strokeWidth: '1',
         fill: 'transparent'
       });
@@ -119,13 +94,14 @@ export const App = {
   },
 
   animateLines(lines, newLines) {
-    let horizontals = lines.horizLines;
-    let verticals   = lines.vertLines;
-    let newHoriz    = newLines.horizLines;
-    let newVert     = newLines.vertLines;
-    for (var i = 1; i < horizontals.length -1; i++) {
-      verticals[i].polyAnimate([].concat.apply([], newHoriz[i]), 1000, mina.linear);
-      horizontals[i].polyAnimate([].concat.apply([], newVert[i]), 1000, mina.linear);
+    let horizontalLines = lines.horizLines;
+    let verticalLines   = lines.vertLines;
+    let newHoriz        = newLines.horizLines;
+    let newVert         = newLines.vertLines;
+
+    for (let i = 1; i < horizontalLines.length -1; i++) {
+      verticalLines[i].polyAnimate([].concat.apply([], newHoriz[i]), 1000, mina.linear);
+      horizontalLines[i].polyAnimate([].concat.apply([], newVert[i]), 1000, mina.linear);
     }
   },
 
@@ -136,14 +112,14 @@ export const App = {
 
   init() {
     this.s = new Snap('#svg');
-    console.log(window.innerWidth);
-    let {horizontals, verticals} = this.createPoints(15,15,window.innerHeight,window.innerWidth);
-    this.horizontals = horizontals;
-    this.verticals = verticals;
-    this.prevX = 0;
-    this.animationAmount = 15;
+    let {horizontals, verticals} = this.createPoints(50,50,window.innerHeight,window.innerWidth);
 
-    this.lines = this.drawLines(this.s, this.horizontals, this.verticals);
+    this.horizontals = map(horizontals, clone);
+    this.verticals   = map(verticals, clone);
+    this.prevX = 0;
+    this.animationAmount = 10;
+
+    this.lines = this.drawLines(this.s, horizontals, verticals);
 
     let svgInt = setInterval(() => {
       this.render(this.lines, horizontals, verticals);
