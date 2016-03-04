@@ -1,6 +1,6 @@
 import Snap              from 'snapsvg';
 import {clone, map}      from 'lodash';
-import {createRandomRGB} from './helpers';
+import {createRandomRGB, isBetween} from './helpers';
 
 Snap.plugin( function( Snap, Element, Paper, global ) {
   Element.prototype.polyAnimate = function( destPoints, duration, easing, callback ) {
@@ -12,16 +12,19 @@ Snap.plugin( function( Snap, Element, Paper, global ) {
 
 export const App = {
   init() {
-    let {horizontals, verticals} = this.createPoints(20,20,window.innerHeight,window.innerWidth);
+    this.maxWidth = window.innerWidth;
+    this.maxHeight = window.innerHeight;
+    let {horizontals, verticals} = this.createPoints(20,20,this.maxHeight,this.maxWidth);
     let svgInt;
 
     this.s                = new Snap('#svg');
     this.horizontals      = map(horizontals, clone);
     this.verticals        = map(verticals, clone);
     this.prevX            = 0;
+    this.animationAmount  = 100;
     this.animationAmountX = 8;
     this.animationAmountY = 26;
-    this.interval         = 1000;
+    this.interval         = 5000;
     this.strokeWidth      = 1;
     this.lines            = this.drawLines(this.s, horizontals, verticals);
 
@@ -63,19 +66,28 @@ export const App = {
     };
   },
 
+  getNewValueInRange(current, min, max) {
+    let factor = Math.floor(Math.random() < 0.5 ? -this.animationAmount : this.animationAmount);
+    let newVal = current +  Math.floor(Math.random() * factor);
+
+    if(isBetween(newVal, min, max)) {
+      return newVal;
+    } else {
+      return this.getNewValueInRange(current, min, max);
+    }
+  },
+
   updateValues(horizontals, verticals) {
-    let newHoriz = map(horizontals, clone);
-    let newVert  = map(verticals, clone);
+    // let newHoriz = map(horizontals, clone);
+    // let newVert  = map(verticals, clone);
+    let newHoriz = clone(horizontals);
+    let newVert  = clone(verticals);
 
     for (let i = 1; i < (newHoriz.length -1); i++) {
       let horizontal = newHoriz[i];
       for (let j = 1; j < (horizontal.length -1); j++) {
-        let factorX = Math.floor(Math.random() < 0.5 ? -this.animationAmountX : this.animationAmountX);
-        let factorY = Math.floor(Math.random() < 0.5 ? -this.animationAmountY : this.animationAmountY);
-        let randX  = Math.floor(Math.random() * factorX);
-        let randY  = Math.floor(Math.random() * factorY);
-        let x = horizontal[j][0] + randX;
-        let y = horizontal[j][1] + randY;
+        let x = this.getNewValueInRange(horizontal[j][0], 0 -this.animationAmount, this.maxWidth + this.animationAmount);
+        let y = this.getNewValueInRange(horizontal[j][1], 0 -this.animationAmount, this.maxHeight + this.animationAmount);
 
         newHoriz[i][j] = [x, y];
         newVert[j][i] = [x,y];
