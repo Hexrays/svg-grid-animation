@@ -14,7 +14,8 @@ export const App = {
   init() {
     this.maxWidth = window.innerWidth;
     this.maxHeight = window.innerHeight;
-    let {horizontals, verticals} = this.createPoints(20,20,this.maxHeight,this.maxWidth);
+    let {horizontals, verticals} = this.createPoints(40,40,this.maxHeight,this.maxWidth);
+    let tick = 0;
     let svgInt;
 
     this.s                = new Snap('#svg');
@@ -30,11 +31,19 @@ export const App = {
 
     this.render(this.lines, horizontals, verticals);
     svgInt = setInterval(() => {
-      this.render(this.lines, horizontals, verticals);
+      tick++;
+      if(tick % 10 === 0 ) {
+        horizontals      = map(this.horizontals, clone);
+        verticals        = map(this.verticals, clone);
+        this.animateHome(this.lines, this.horizontals, this.verticals);
+      } else {
+        this.render(this.lines, horizontals, verticals);
+      }
     }, this.interval);
 
-    window.stopAnimation = function() {
+    window.stopAnimation = () => {
       clearInterval(svgInt);
+      this.animateHome(this.lines, this.horizontals, this.verticals);
     };
   },
 
@@ -140,6 +149,17 @@ export const App = {
     for (let i = 1; i < horizontalLines.length -1; i++) {
       verticalLines[i].polyAnimate([].concat.apply([], newHoriz[i]), this.interval, mina.linear);
       horizontalLines[i].polyAnimate([].concat.apply([], newVert[i]), this.interval, mina.linear);
+    }
+  },
+
+  animateHome(lines) {
+    let horizontalLines = lines.horizLines;
+    let verticalLines   = lines.vertLines;
+    let horizontals = this.horizontals;
+    let verticals = this.verticals;
+    for (let i = 1; i < horizontalLines.length -1; i++) {
+      verticalLines[i].polyAnimate([].concat.apply([], horizontals[i]), this.interval/2, mina.linear);
+      horizontalLines[i].polyAnimate([].concat.apply([], verticals[i]), this.interval/2, mina.linear);
     }
   },
 
