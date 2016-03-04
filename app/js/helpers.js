@@ -1,4 +1,4 @@
-var hue = 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';
+// var hue = 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';
 
 export function createRandomRGB(alpha=1) {
   return `rgba(${(Math.floor(Math.random() * 256))},${(Math.floor(Math.random() * 256))},${(Math.floor(Math.random() * 256))},${alpha})`;
@@ -61,4 +61,8 @@ export function checkObjectInArray(obj, array) {
     }
   }
   return false;
+}
+
+export function isBetween(num, min, max) {
+  return num >= min && num <= max;
 }
