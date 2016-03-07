@@ -66,3 +66,7 @@ export function checkObjectInArray(obj, array) {
 export function isBetween(num, min, max) {
   return num >= min && num <= max;
 }
+
+export function puke(obj) {
+    return <pre>{JSON.stringify(obj, null, ' ')}</pre>
+}
